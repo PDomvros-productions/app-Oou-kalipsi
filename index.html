@@ -42,13 +42,12 @@
         
         <!-- Header Section -->
         <header class="text-center mb-8">
-<!-- ΜΕΤΑ ΤΗΝ ΑΛΛΑΓΗ (Αυτό που θα βάλεις) -->
-<div class="flex justify-center items-center gap-2 sm:gap-3">
-    <span class="text-xl sm:text-5xl md:text-6xl">💡</span>
-    <h1 class="font-pacifico text-xl sm:text-5xl md:text-6xl ...">
-        App-Οου-κάλυψη
-    </h1>
-    <span class="text-xl sm:text-5xl md:text-6xl">🔮</span>
+            <div class="flex justify-center items-center gap-2 sm:gap-3">
+                <span class="text-xl sm:text-5xl md:text-6xl">💡</span>
+                <h1 class="font-pacifico text-xl sm:text-5xl md:text-6xl ...">
+                    App-Οου-κάλυψη
+                </h1>
+                <span class="text-xl sm:text-5xl md:text-6xl">🔮</span>
             </div>
             <p class="text-slate-500 mt-10 text-lg">Πρότεινε την επόμενη κορυφαία εφαρμογή!</p>
         </header>
@@ -107,8 +106,7 @@
 
     <!-- Logic Script -->
     <script>
-        const STORAGE_URL = 'https://api.jsonbin.io/v3/b/66ab8d0fe41b4d34e40f3394';
-        const MASTER_KEY = '$2a$10$wL4b.9VwLgV1f2b3e4f5g6h7j8k9l0m1n2o3p4q5r6s7t8u9v'; 
+        const STORAGE_URL = 'https://688db0fba459d5566b12ed0d.mockapi.io/ideas';
         const SECRET_PASSWORD = "!@#123!@#";
 
         const ideaForm = document.getElementById('idea-form');
@@ -144,7 +142,7 @@
                     <div class="idea-card bg-purple-50 border border-purple-200 p-4 rounded-xl shadow-sm">
                         <div class="flex justify-between items-start">
                             <p class="text-slate-800 mb-3 text-lg w-full pr-2"><span class="mr-2">${randomEmoji}</span>${idea.ideaText}</p>
-                            <span class="delete-btn text-lg" data-id="${idea.createdAt}">🗑️</span>
+                            <span class="delete-btn text-lg" data-id="${idea.id}">🗑️</span>
                         </div>
                         <div class="flex justify-between items-center text-xs text-slate-500 mt-4 pt-2 border-t border-purple-100">
                             <span class="font-semibold">${name}</span>
@@ -154,25 +152,32 @@
             }).join('');
         }
 
-        async function updateRemoteStorage(ideas) {
-            const response = await fetch(STORAGE_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
-                body: JSON.stringify({ ideas: ideas })
-            });
-            if (!response.ok) throw new Error('Could not save the updated list.');
+        async function fetchIdeas() {
+            try {
+                const response = await fetch(STORAGE_URL);
+                if (!response.ok) throw new Error('Failed to fetch ideas');
+                return await response.json();
+            } catch (error) {
+                console.error("Error fetching ideas:", error);
+                return [];
+            }
         }
 
-        async function fetchIdeas() {
-            // Added cache-busting parameter
-            const url = `${STORAGE_URL}/latest?_=${new Date().getTime()}`;
-            const response = await fetch(url, { headers: { 'X-Master-Key': MASTER_KEY } });
-            if (!response.ok) {
-                if (response.status === 404) return [];
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            return data.record.ideas || [];
+        async function addNewIdea(newIdea) {
+            const response = await fetch(STORAGE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newIdea)
+            });
+            if (!response.ok) throw new Error('Failed to save idea');
+            return await response.json();
+        }
+
+        async function deleteIdea(id) {
+            const response = await fetch(`${STORAGE_URL}/${id}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error('Failed to delete idea');
         }
 
         async function loadIdeas() {
@@ -180,7 +185,7 @@
                 const ideas = await fetchIdeas();
                 displayIdeas(ideas);
             } catch (error) {
-                console.error("Error fetching ideas:", error);
+                console.error("Error:", error);
                 initialLoader.style.display = 'none';
                 ideasContainer.innerHTML = `<p class="text-center text-red-500 py-10">Παρουσιάστηκε σφάλμα κατά τη φόρτωση των ιδεών. 😭</p>`;
             }
@@ -193,20 +198,19 @@
             buttonText.classList.add('hidden');
             loadingSpinner.classList.remove('hidden');
             submitButton.disabled = true;
+
             try {
-                const currentIdeas = await fetchIdeas();
                 const newIdea = {
                     ideaText: document.getElementById('idea-text').value,
                     name: document.getElementById('name').value || 'Ανώνυμος 🕵️',
                     createdAt: new Date().toISOString()
                 };
-                const updatedIdeas = [newIdea, ...currentIdeas];
-                await updateRemoteStorage(updatedIdeas);
+                await addNewIdea(newIdea);
                 ideaForm.reset();
                 successMessage.classList.remove('hidden');
-                displayIdeas(updatedIdeas);
+                loadIdeas(); // Refresh the list
             } catch (error) {
-                console.error("Error adding document: ", error);
+                console.error("Error:", error);
                 errorMessage.classList.remove('hidden');
             } finally {
                 buttonText.classList.remove('hidden');
@@ -242,13 +246,11 @@
         confirmDeleteBtn.addEventListener('click', async () => {
             if (passwordInput.value === SECRET_PASSWORD) {
                 try {
-                    const currentIdeas = await fetchIdeas();
-                    const updatedIdeas = currentIdeas.filter(idea => idea.createdAt !== ideaIdToDelete);
-                    await updateRemoteStorage(updatedIdeas);
-                    displayIdeas(updatedIdeas);
+                    await deleteIdea(ideaIdToDelete);
+                    loadIdeas(); // Refresh the list
                     hideDeleteModal();
                 } catch (error) {
-                    console.error("Error deleting idea:", error);
+                    console.error("Error:", error);
                     modalError.textContent = "Αποτυχία διαγραφής.";
                 }
             } else {
