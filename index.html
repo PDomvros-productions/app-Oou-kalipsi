@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App-Οου-κάλυψη ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-pacifico {
+            font-family: 'Pacifico', cursive;
+        }
+        /* Custom scrollbar for a cleaner look */
+        #ideas-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #ideas-container::-webkit-scrollbar-track {
+            background: #fdf4ff;
+            border-radius: 10px;
+        }
+        #ideas-container::-webkit-scrollbar-thumb {
+            background: #f0abfc;
+            border-radius: 10px;
+        }
+        #ideas-container::-webkit-scrollbar-thumb:hover {
+            background: #e879f9;
+        }
+        .idea-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            animation: slide-in 0.5s ease-out forwards;
+        }
+        .idea-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        @keyframes slide-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .delete-btn {
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+        .delete-btn:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-6 max-w-5xl">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-8">
+<!-- ΜΕΤΑ ΤΗΝ ΑΛΛΑΓΗ (Αυτό που θα βάλεις) -->
+<div class="flex justify-center items-center gap-2 sm:gap-3">
+    <span class="text-xl sm:text-5xl md:text-6xl">💡</span>
+    <h1 class="font-pacifico text-xl sm:text-5xl md:text-6xl ...">
+        App-Οου-κάλυψη
+    </h1>
+    <span class="text-xl sm:text-5xl md:text-6xl">🔮</span>
+</div>
+            <p class="text-slate-500 mt-6 text-lg">Πρότεινε την επόμενη κορυφαία εφαρμογή!</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Left Column: Form and Info -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-purple-400">
+                <img src="poll.png" alt="Εικόνα ψηφοφορίας για ιδέες" class="w-full h-auto rounded-xl mb-6 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/600x400/a855f7/ffffff?text=Πες+μας+την+ιδέα+σου!';">
+                
+                <p class="text-slate-600 leading-relaxed mb-6">
+                    Καταχώρισε την ιδέα για μια νέα εφαρμογή εκπαιδευτικού ή γενικότερου ενδιαφέροντος και αν θέλεις και το όνομά σου. Οι ιδέες που θα μου κινήσουν την περιέργεια θα δημιουργηθούν με αναφορά και σε εσένα που πρότεινες την ιδέα.
+                </p>
+                <p class="text-sm text-slate-500 text-right font-medium">Με φιλικούς χαιρετισμούς,<br>Παναγιώτης Δόμβρος</p>
+                
+                <hr class="my-6 border-slate-200">
+
+                <!-- Submission Form -->
+                <form id="idea-form">
+                    <div class="mb-4">
+                        <label for="idea-text" class="block text-md font-medium text-slate-700 mb-1">✍️ Η Ιδέα σου:</label>
+                        <textarea id="idea-text" rows="4" class="w-full p-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition" placeholder="π.χ. Μια εφαρμογή που μεταφράζει το γαύγισμα των σκύλων!" required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="name" class="block text-md font-medium text-slate-700 mb-1">👤 Το Όνομά σου (Προαιρετικό):</label>
+                        <input type="text" id="name" class="w-full p-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition" placeholder="π.χ. Super Coder">
+                    </div>
+                    <button type="submit" id="submit-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-4 rounded-lg hover:from-purple-600 hover:to-pink-600 active:scale-95 transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl text-lg">
+                        <span id="button-text">Υποβολή Ιδέας! ✨</span>
+                        <div id="loading-spinner" class="hidden animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    </button>
+                </form>
+                 <div id="success-message" class="hidden mt-4 p-3 bg-green-100 text-green-800 border border-green-200 rounded-lg text-center">
+                    Ευχαριστούμε! Η ιδέα σου καταχωρήθηκε! 🎉
+                </div>
+                 <div id="error-message" class="hidden mt-4 p-3 bg-red-100 text-red-800 border border-red-200 rounded-lg text-center">
+                    Ωχ! 😱 Κάτι πήγε στραβά. Δοκίμασε ξανά.
+                </div>
+            </div>
+
+            <!-- Right Column: Ideas Wall -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-pink-400">
+                <h2 class="text-3xl font-bold text-slate-700 mb-4 border-b-2 border-slate-200 pb-2">🧠 Οι Ιδέες σας:</h2>
+                <div id="ideas-container" class="space-y-4 h-[500px] lg:h-[600px] overflow-y-auto pr-2">
+                    <!-- Ideas will be dynamically inserted here -->
+                     <div id="initial-loader" class="text-center py-10">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                        <p class="text-slate-500 mt-3">Φόρτωση ιδεών...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Simple Data Storage Logic -->
+    <script>
+        const STORAGE_URL = 'https://api.jsonbin.io/v3/b/66ab8d0fe41b4d34e40f3394';
+        const MASTER_KEY = '$2a$10$wL4b.9VwLgV1f2b3e4f5g6h7j8k9l0m1n2o3p4q5r6s7t8u9v'; 
+        const SECRET_PASSWORD = "!@#123!@#"; // Ορισμός του μυστικού κωδικού
+
+        const ideaForm = document.getElementById('idea-form');
+        const ideasContainer = document.getElementById('ideas-container');
+        const initialLoader = document.getElementById('initial-loader');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+
+        const ideaEmojis = ['💡', '🚀', '🎉', '🌟', '🎨', '🤖', '🧠', '✨', '🔥', '🦄', '👾', '🌍', '🎸', '🍕', '🌮'];
+
+        function displayIdeas(ideas) {
+            initialLoader.style.display = 'none';
+            
+            if (!ideas || ideas.length === 0) {
+                ideasContainer.innerHTML = `<p class="text-center text-slate-500 py-10">Δεν υπάρχουν ακόμα ιδέες. Γίνε ο πρώτος που θα προτείνει μία! 🥇</p>`;
+                return;
+            }
+            
+            ideas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            let ideasHtml = '';
+            ideas.forEach(idea => {
+                const date = new Date(idea.createdAt).toLocaleDateString('el-GR');
+                const name = idea.name ? idea.name : 'Ανώνυμος 🕵️';
+                const randomEmoji = ideaEmojis[Math.floor(Math.random() * ideaEmojis.length)];
+                
+                ideasHtml += `
+                    <div class="idea-card bg-purple-50 border border-purple-200 p-4 rounded-xl shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <p class="text-slate-800 mb-3 text-lg w-full"><span class="mr-2">${randomEmoji}</span>${idea.ideaText}</p>
+                            <span class="delete-btn text-lg" data-id="${idea.createdAt}">🗑️</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-slate-500 mt-4 pt-2 border-t border-purple-100">
+                            <span class="font-semibold">${name}</span>
+                            <span>${date}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            ideasContainer.innerHTML = ideasHtml;
+        }
+
+        async function updateRemoteStorage(ideas) {
+            const response = await fetch(STORAGE_URL, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': MASTER_KEY
+                },
+                body: JSON.stringify({ ideas: ideas })
+            });
+            if (!response.ok) {
+                throw new Error('Could not save the updated list.');
+            }
+        }
+
+        async function fetchIdeas() {
+            const response = await fetch(`${STORAGE_URL}/latest`, { 
+                headers: { 'X-Master-Key': MASTER_KEY }
+            });
+            if (!response.ok) {
+                if (response.status === 404) {
+                   return [];
+                }
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data.record.ideas || [];
+        }
+
+        async function loadIdeas() {
+            try {
+                const ideas = await fetchIdeas();
+                displayIdeas(ideas);
+            } catch (error) {
+                console.error("Error fetching ideas:", error);
+                initialLoader.style.display = 'none';
+                ideasContainer.innerHTML = `<p class="text-center text-red-500 py-10">Παρουσιάστηκε σφάλμα κατά τη φόρτωση των ιδεών. 😭</p>`;
+            }
+        }
+
+        ideaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            successMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            buttonText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+            submitButton.disabled = true;
+
+            try {
+                const currentIdeas = await fetchIdeas();
+                const newIdea = {
+                    ideaText: document.getElementById('idea-text').value,
+                    name: document.getElementById('name').value || 'Ανώνυμος 🕵️',
+                    createdAt: new Date().toISOString()
+                };
+                const updatedIdeas = [newIdea, ...currentIdeas];
+                
+                await updateRemoteStorage(updatedIdeas);
+                
+                ideaForm.reset();
+                successMessage.classList.remove('hidden');
+                displayIdeas(updatedIdeas);
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                errorMessage.classList.remove('hidden');
+            } finally {
+                buttonText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+                submitButton.disabled = false;
+            }
+        });
+
+        ideasContainer.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const enteredPassword = prompt("Παρακαλώ εισάγετε τον κωδικό διαγραφής:");
+                if (enteredPassword === null) return; // User cancelled
+
+                if (enteredPassword === SECRET_PASSWORD) {
+                    const ideaId = e.target.getAttribute('data-id');
+                    const confirmation = confirm("Είστε σίγουρος ότι θέλετε να διαγράψετε αυτή την ιδέα;");
+                    if (!confirmation) return;
+
+                    try {
+                        const currentIdeas = await fetchIdeas();
+                        const updatedIdeas = currentIdeas.filter(idea => idea.createdAt !== ideaId);
+                        await updateRemoteStorage(updatedIdeas);
+                        displayIdeas(updatedIdeas);
+                        alert("Η ιδέα διαγράφηκε με επιτυχία!");
+                    } catch (error) {
+                        console.error("Error deleting idea:", error);
+                        alert("Αποτυχία διαγραφής. Προσπαθήστε ξανά.");
+                    }
+                } else {
+                    alert("Λάθος κωδικός!");
+                }
+            }
+        });
+
+        loadIdeas();
+    </script>
+</body>
+</html>
